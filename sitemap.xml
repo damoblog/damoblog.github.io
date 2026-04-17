@@ -702,13 +702,6 @@
   </url>
   
   <url>
-    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/%E6%B8%B8%E6%88%8F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/</loc>
-    <lastmod>2026-04-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/%E6%88%98%E6%96%97/</loc>
     <lastmod>2026-04-17</lastmod>
     <changefreq>weekly</changefreq>
@@ -730,14 +723,21 @@
   </url>
   
   <url>
-    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/XLua/</loc>
+    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/%E6%88%98%E6%96%97/%E6%94%BE%E7%BD%AE%E7%B1%BB%E5%8D%A1%E7%89%8C%E6%88%98%E6%96%97/</loc>
     <lastmod>2026-04-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/%E6%88%98%E6%96%97/%E6%94%BE%E7%BD%AE%E7%B1%BB%E5%8D%A1%E7%89%8C%E6%88%98%E6%96%97/</loc>
+    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/%E6%B8%B8%E6%88%8F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/</loc>
+    <lastmod>2026-04-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/XLua/</loc>
     <lastmod>2026-04-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
