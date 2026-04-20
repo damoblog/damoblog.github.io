@@ -641,7 +641,7 @@
 
   
   <url>
-    <loc>https://damoblog.github.io/tags/typescript/</loc>
+    <loc>https://damoblog.github.io/tags/%E6%BA%90%E7%A0%81/</loc>
     <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -669,7 +669,7 @@
   </url>
   
   <url>
-    <loc>https://damoblog.github.io/tags/%E6%BA%90%E7%A0%81/</loc>
+    <loc>https://damoblog.github.io/tags/typescript/</loc>
     <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -692,6 +692,13 @@
   </url>
   
   <url>
+    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86/</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/UI/</loc>
     <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
@@ -706,14 +713,21 @@
   </url>
   
   <url>
-    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86/</loc>
+    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/%E6%88%98%E6%96%97/</loc>
     <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/%E6%88%98%E6%96%97/</loc>
+    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86/Unity/</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/%E6%B8%B8%E6%88%8F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/</loc>
     <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -727,7 +741,7 @@
   </url>
   
   <url>
-    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86/Unity/</loc>
+    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/UI/UI%E6%A1%86%E6%9E%B6/</loc>
     <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -742,20 +756,6 @@
   
   <url>
     <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/%E6%88%98%E6%96%97/%E6%B2%99%E7%9B%92%E7%B1%BBSLG%E6%88%98%E6%96%97/</loc>
-    <lastmod>2026-04-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/UI/UI%E6%A1%86%E6%9E%B6/</loc>
-    <lastmod>2026-04-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/%E6%B8%B8%E6%88%8F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/</loc>
     <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
