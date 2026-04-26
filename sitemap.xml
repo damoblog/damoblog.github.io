@@ -732,13 +732,6 @@
 
   
   <url>
-    <loc>https://damoblog.github.io/categories/hexo/</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>weekly</changefreq>
@@ -746,7 +739,7 @@
   </url>
   
   <url>
-    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/UI/</loc>
+    <loc>https://damoblog.github.io/categories/hexo/</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -754,6 +747,13 @@
   
   <url>
     <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/Puerts/</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/UI/</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -768,6 +768,13 @@
   
   <url>
     <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/%E6%88%98%E6%96%97/</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/UI/UI%E6%A1%86%E6%9E%B6/</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -789,13 +796,6 @@
   
   <url>
     <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/%E6%88%98%E6%96%97/%E6%94%BE%E7%BD%AE%E7%B1%BB%E5%8D%A1%E7%89%8C%E6%88%98%E6%96%97/</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://damoblog.github.io/categories/%E6%8A%80%E6%9C%AF/UI/UI%E6%A1%86%E6%9E%B6/</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
