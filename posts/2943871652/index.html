@@ -1,0 +1,223 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>沙盒类SLG战斗(十) 战斗意图的入口：Input | Damo Blog</title><meta name="keywords" content="lua,设计模式"><meta name="author" content="Damo"><meta name="copyright" content="Damo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="点我回到首页  从一个朴素的疑问开始上一章讲完了 Random——它锁死了随机序列，让”运气”变成了多端可对齐的确定序列。 现在来到逻辑层里专门负责”收”的那个角色：InputManager。 它要解决的问题听起来很具体：战斗里的外部意图来自很多地方——  玩家点了技能 AI 做了决策，决定换个攻击目标 系统触发了某个定时事件 网络包带来了队友的指令  这些意图是怎么进入战斗系统的？ 最直觉">
+<meta property="og:type" content="article">
+<meta property="og:title" content="沙盒类SLG战斗(十) 战斗意图的入口：Input">
+<meta property="og:url" content="https://damoblog.github.io/posts/2943871652/index.html">
+<meta property="og:site_name" content="Damo Blog">
+<meta property="og:description" content="点我回到首页  从一个朴素的疑问开始上一章讲完了 Random——它锁死了随机序列，让”运气”变成了多端可对齐的确定序列。 现在来到逻辑层里专门负责”收”的那个角色：InputManager。 它要解决的问题听起来很具体：战斗里的外部意图来自很多地方——  玩家点了技能 AI 做了决策，决定换个攻击目标 系统触发了某个定时事件 网络包带来了队友的指令  这些意图是怎么进入战斗系统的？ 最直觉">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://damoblog.github.io/posts/2943871652/title.jpg">
+<meta property="article:published_time" content="2026-04-27T06:00:00.000Z">
+<meta property="article:modified_time" content="2026-04-27T03:27:44.393Z">
+<meta property="article:author" content="Damo">
+<meta property="article:tag" content="lua">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://damoblog.github.io/posts/2943871652/title.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://damoblog.github.io/posts/2943871652/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: Damo","link":"链接: ","source":"来源: Damo Blog","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '沙盒类SLG战斗(十) 战斗意图的入口：Input',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-04-27 11:27:44'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    })(window)</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/iconfont.css" media="defer" onload="this.media='all'"><meta name="generator" content="Hexo 5.4.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/img/head.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">71</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/gameFramework/"><span> 游戏架构设计</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 战斗设计</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/posts/3206756999/"><span> 放置类卡牌战斗</span></a></li><li><a class="site-page child" href="/posts/3491614555/"><span> 沙盒类SLG战斗</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/resourceManage/"><span> 资源管理</span></a></div><div class="menus_item"><a class="site-page" href="/ui/"><span> UI</span></a></div><div class="menus_item"><a class="site-page" href="/puerts/"><span> Puerts</span></a></div><div class="menus_item"><a class="site-page" href="/xlua/"><span> XLua</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/posts/2943871652/title.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Damo Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/gameFramework/"><span> 游戏架构设计</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 战斗设计</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/posts/3206756999/"><span> 放置类卡牌战斗</span></a></li><li><a class="site-page child" href="/posts/3491614555/"><span> 沙盒类SLG战斗</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/resourceManage/"><span> 资源管理</span></a></div><div class="menus_item"><a class="site-page" href="/ui/"><span> UI</span></a></div><div class="menus_item"><a class="site-page" href="/puerts/"><span> Puerts</span></a></div><div class="menus_item"><a class="site-page" href="/xlua/"><span> XLua</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">沙盒类SLG战斗(十) 战斗意图的入口：Input</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-04-27T06:00:00.000Z" title="发表于 2026-04-27 14:00:00">2026-04-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-04-27T03:27:44.393Z" title="更新于 2026-04-27 11:27:44">2026-04-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/%E6%88%98%E6%96%97/">战斗</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/%E6%88%98%E6%96%97/%E6%B2%99%E7%9B%92%E7%B1%BBSLG%E6%88%98%E6%96%97/">沙盒类SLG战斗</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="沙盒类SLG战斗(十) 战斗意图的入口：Input"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><hr>
+  <a href="/posts/3491614555/" title="点我回到首页">点我回到首页</a>
+<hr>
+<h1 id="从一个朴素的疑问开始"><a href="#从一个朴素的疑问开始" class="headerlink" title="从一个朴素的疑问开始"></a>从一个朴素的疑问开始</h1><p>上一章讲完了 Random——它锁死了随机序列，让”运气”变成了多端可对齐的确定序列。</p>
+<p>现在来到逻辑层里专门负责”收”的那个角色：<strong>InputManager</strong>。</p>
+<p>它要解决的问题听起来很具体：战斗里的外部意图来自很多地方——</p>
+<ul>
+<li>玩家点了技能</li>
+<li>AI 做了决策，决定换个攻击目标</li>
+<li>系统触发了某个定时事件</li>
+<li>网络包带来了队友的指令</li>
+</ul>
+<p>这些意图是怎么进入战斗系统的？</p>
+<h1 id="最直觉的想法"><a href="#最直觉的想法" class="headerlink" title="最直觉的想法"></a>最直觉的想法</h1><p>刚开始做输入处理时，最自然的想法就是——来了就处理。</p>
+<p>在点击回调里直接触发技能，在 AI 决策完成后立刻修改单位状态：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 示意伪代码</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">OnPlayerClickSkill</span><span class="params">(skillId)</span></span></span><br><span class="line">    unit:CastSkill(skillId)  <span class="comment">-- 来了就执行</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>简单，响应快，写起来也毫无障碍。</p>
+<p>但只要战斗需要在多个端上跑，这套就开始出问题。</p>
+<h1 id="即时处理为什么行不通"><a href="#即时处理为什么行不通" class="headerlink" title="即时处理为什么行不通"></a>即时处理为什么行不通</h1><p>同一帧里，可能同时来了好几条意图——玩家点了技能、AI 也在同一帧做了决策、系统也触发了一个定时事件。来了就执行，执行顺序就取决于”谁先到”。</p>
+<p>但”谁先到”意味着什么？意味着战斗结果取决于<strong>网络延迟和线程调度</strong>——这两件事在不同端上是不可控的。客户端先到、服务器后到，还是反过来？没有人能保证。顺序差一步，后面所有单位的状态都可能不同，战斗从这一帧起就开始分叉。</p>
+<p>举个具体的例子。同一帧内来了两条意图：</p>
+<ul>
+<li>A：玩家释放技能（消耗能量）</li>
+<li>B：某个 Buff 触发，给该单位回了一点能量</li>
+</ul>
+<p>如果 B 先执行、A 后执行：能量先涨，技能消耗后扣，技能<strong>成功释放</strong>。</p>
+<p>如果 A 先执行：能量不够，技能<strong>释放失败</strong>，B 的回能也救不回来。</p>
+<p>两种顺序，同一帧，完全不同的结果——而哪条先到，取决于网络和线程，没人能控制。</p>
+<blockquote>
+<p><strong>一旦输入按”到达顺序”执行，你就等于把战斗结果交给了网络延迟和线程调度。</strong></p>
+</blockquote>
+<p>第三章从系统层面解释了”为什么需要同帧收敛”，这一章关心的是具体落地：收敛到什么粒度、按什么规则排序、谁来负责执行。</p>
+<h1 id="统一抽象：IInput"><a href="#统一抽象：IInput" class="headerlink" title="统一抽象：IInput"></a>统一抽象：IInput</h1><p>解决这些问题的第一步，是把”意图”从具体的触发行为里抽出来，变成一个可以被传递、排序、记录的对象。</p>
+<p>不管意图来自玩家、AI 还是系统，都实现同一个接口：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 示意伪代码</span></span><br><span class="line">IInput = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">IInput:HandleInput</span><span class="params">(engine)</span></span></span><br><span class="line">    <span class="comment">-- 子类实现：这条意图发生时，对战斗状态做什么</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">IInput:GetInputLevel</span><span class="params">()</span></span></span><br><span class="line">    <span class="comment">-- 子类实现：返回这条意图的优先级</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>这样，InputManager 不需要知道每条输入”来自哪里”——它只知道手里有一批 <code>IInput</code> 对象，到时候按顺序调用就行。玩家点技能、AI 换目标、系统触发定时事件，对 InputManager 来说没有区别。</p>
+<p>这个接口还有一条隐含的约束：<strong>IInput 对象必须可序列化</strong>。桥接层把输入记进 <code>inputInfo</code>、战斗结束后写成二进制上报服务器——整条链路都依赖输入对象能被完整地写出去再读回来。一个只活在内存里、无法被序列化的输入，在多端场景下是没有意义的。</p>
+<h1 id="缓冲-优先级排序"><a href="#缓冲-优先级排序" class="headerlink" title="缓冲 + 优先级排序"></a>缓冲 + 优先级排序</h1><p>有了统一的接口，就可以实现第三章里说的同帧收敛：</p>
+<blockquote>
+<p>一帧内收到的所有意图，先进缓冲队列，不立刻执行。帧末按规则排序，再统一消费。</p>
+</blockquote>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 示意伪代码</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">InputManager:AddInput</span><span class="params">(input)</span></span></span><br><span class="line">    <span class="built_in">table</span>.<span class="built_in">insert</span>(<span class="built_in">self</span>.inputQueue, <span class="built_in">input</span>)  <span class="comment">-- 先排队，不立刻执行</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">InputManager:HandleInputs</span><span class="params">()</span></span></span><br><span class="line">    <span class="comment">-- 按优先级排序</span></span><br><span class="line">    <span class="built_in">table</span>.<span class="built_in">sort</span>(<span class="built_in">self</span>.inputQueue, <span class="function"><span class="keyword">function</span><span class="params">(a, b)</span></span></span><br><span class="line">        <span class="keyword">return</span> a:GetInputLevel() &lt; b:GetInputLevel()</span><br><span class="line">    <span class="keyword">end</span>)</span><br><span class="line">    <span class="comment">-- 统一消费</span></span><br><span class="line">    <span class="keyword">for</span> _, <span class="built_in">input</span> <span class="keyword">in</span> <span class="built_in">ipairs</span>(<span class="built_in">self</span>.inputQueue) <span class="keyword">do</span></span><br><span class="line">        <span class="built_in">input</span>:HandleInput(<span class="built_in">self</span>.engine)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="built_in">self</span>.inputQueue = &#123;&#125;</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>优先级的意义在于：不同类型的意图在语义上存在先后依赖。比如”切换手动/自动模式”（改变阵营级别的操控状态）应该先于”释放技能”（依赖当前模式的操作）被处理——顺序反了，技能可能在错误的模式下被执行。</p>
+<blockquote>
+<p><strong>优先级不是”谁更重要”，而是”谁的语义依赖谁”。</strong></p>
+</blockquote>
+<h1 id="服务器怎么用输入序列来校验"><a href="#服务器怎么用输入序列来校验" class="headerlink" title="服务器怎么用输入序列来校验"></a>服务器怎么用输入序列来校验</h1><p>有了按帧收整好的输入序列，服务器校验的过程就很直接了。</p>
+<p>记录输入的事发生在<strong>桥接层</strong>。桥接层维护一个 <code>inputInfo</code>，按输入类型分类存放，每条记录都带上发生时的 tick：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 示意伪代码</span></span><br><span class="line"><span class="comment">-- inputInfo 的大致结构</span></span><br><span class="line">inputInfo = &#123;</span><br><span class="line">    switchSkillModeInputs = &#123;       <span class="comment">-- 手动 / 自动模式切换</span></span><br><span class="line">        &#123;tick, campIndex, isToManual&#125;,</span><br><span class="line">        ...</span><br><span class="line">    &#125;,</span><br><span class="line">    skillCastInputs = &#123;             <span class="comment">-- 技能释放</span></span><br><span class="line">        &#123;tick, unitId, skillId&#125;,</span><br><span class="line">        ...</span><br><span class="line">    &#125;,</span><br><span class="line">    skillCastInputWithPositions = &#123; <span class="comment">-- 带目标位置的技能释放</span></span><br><span class="line">        &#123;tick, unitId, skillId, posX, posY&#125;,</span><br><span class="line">        ...</span><br><span class="line">    &#125;,</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>每当桥接层收到一条玩家操作，它同时做两件事：把意图推给逻辑层的 InputManager 去执行，以及往 <code>inputInfo</code> 对应的数组里追加一条记录：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 示意伪代码（桥接层）</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Bridge:SendSkillCastInput</span><span class="params">(unitId, skillId)</span></span></span><br><span class="line">    <span class="comment">-- 记录（带上当前 tick）</span></span><br><span class="line">    <span class="keyword">local</span> skillCastInput = SkillCastInput.New()</span><br><span class="line">    skillCastInput.tick = <span class="built_in">self</span>.engine.tick</span><br><span class="line">    skillCastInput.unitId = unitId</span><br><span class="line">    skillCastInput.skillId = skillId</span><br><span class="line">    <span class="built_in">table</span>.<span class="built_in">insert</span>(<span class="built_in">self</span>.inputInfo.skillCastInputs, skillCastInput)</span><br><span class="line">    <span class="comment">-- 推给逻辑层执行</span></span><br><span class="line">    <span class="built_in">self</span>.engine.inputManager:AddInput(SkillCastLogicInput.New(unitId, skillId))</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>战斗结束后，桥接层把<strong>初始状态</strong>（阵容、属性、随机种子，存在 <code>battleInfo</code> 里）和<strong>输入记录</strong>（<code>inputInfo</code>）一起序列化上报：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 示意伪代码（桥接层）</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Bridge:WriteForVerify</span><span class="params">(writer)</span></span></span><br><span class="line">    <span class="built_in">self</span>.battleInfo:Write(writer)  <span class="comment">-- 初始状态 + 随机种子</span></span><br><span class="line">    <span class="built_in">self</span>.inputInfo:Write(writer)   <span class="comment">-- 各 tick 的输入序列</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>服务器收到后，用同样的初始状态和种子起一个战斗引擎，把 <code>inputInfo</code> 里每条记录按 tick 顺序重新喂给 InputManager，逐帧推进，跑完一遍：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 示意伪代码（服务器端）</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Server:Verify</span><span class="params">(battleInfo, inputInfo, clientResult)</span></span></span><br><span class="line">    <span class="keyword">local</span> engine = Engine.New(battleInfo)  <span class="comment">-- 相同的初始状态和种子</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> engine:IsRunning() <span class="keyword">do</span></span><br><span class="line">        <span class="keyword">for</span> _, <span class="built_in">input</span> <span class="keyword">in</span> <span class="built_in">ipairs</span>(inputInfo:GetInputsForTick(engine.tick)) <span class="keyword">do</span></span><br><span class="line">            engine.inputManager:AddInput(<span class="built_in">input</span>)</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        engine:Tick()</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">local</span> serverResult = engine:GetResult()</span><br><span class="line">    <span class="keyword">if</span> serverResult ~= clientResult <span class="keyword">then</span></span><br><span class="line">        <span class="comment">-- 结果不一致，判定为异常</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>服务器这边跑的，和客户端跑的是完全同一套逻辑——相同的初始状态、相同的种子、相同顺序的输入，就必然得到相同的结果。如果结果对不上，一定是中间某个环节出了问题。</p>
+<blockquote>
+<p><strong>校验的本质不是”比对结果”，而是”复现过程”——相同的起点、相同的输入、相同的规则，结果只有一个可能。</strong></p>
+</blockquote>
+<h1 id="一个被低估的事实"><a href="#一个被低估的事实" class="headerlink" title="一个被低估的事实"></a>一个被低估的事实</h1><p>回头看 InputManager——帧末排序，逐个消费，清空，就这些。</p>
+<p>但它撑起的事并不轻：</p>
+<ul>
+<li><strong>多端确定性</strong>：所有端的意图都经过同样的缓冲和排序规则，消费顺序可控，结果可复现</li>
+<li><strong>服务器校验</strong>：有实时操作的战斗，服务器需要用”初始状态 + 玩家输入序列 + 随机种子”复现战斗过程来校验结果。InputManager 把每帧的意图整理成有序序列，是这个”复现”成立的前提</li>
+<li><strong>来源解耦</strong>：逻辑层不关心意图来自玩家、AI 还是系统触发——都是 <code>IInput</code>，对 InputManager 没有区别</li>
+</ul>
+<blockquote>
+<p><strong>InputManager 看起来只是个队列加排序，但它是整个战斗系统确定性的起点。</strong> 所有的可复现性，都从这里开始——意图收敛了，后面的执行才能被约束。</p>
+</blockquote>
+<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>到这里，InputManager 的故事就讲完了——它定义了外部意图进入战斗系统的唯一路径：先缓冲、帧末排序、统一消费。</p>
+<p>如果说 InputManager 负责”收”，那逻辑层产出的事件，又是怎么被统一”发”出去的？</p>
+<p>下一章，<strong>输出管理（Record）</strong>。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Damo</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://damoblog.github.io/posts/2943871652/">https://damoblog.github.io/posts/2943871652/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://damoblog.github.io" target="_blank">Damo Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/lua/">lua</a><a class="post-meta__tags" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a></div><div class="post_share"><div class="social-share" data-image="/posts/2943871652/title.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/posts/2385172949/"><img class="next-cover" src="/posts/2385172949/title.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">沙盒类SLG战斗(九) 可复现的随机：Random</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/3067045796/" title="UI-PureMVC框架"><img class="cover" src="/posts/3067045796/title.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-05-10</div><div class="title">UI-PureMVC框架</div></div></a></div><div><a href="/posts/1636533572/" title="沙盒类SLG战斗(一) 从简单游戏开始"><img class="cover" src="/posts/1636533572/title.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-20</div><div class="title">沙盒类SLG战斗(一) 从简单游戏开始</div></div></a></div><div><a href="/posts/651476186/" title="沙盒类SLG战斗(七) 阵营本身也是实体：Camp"><img class="cover" src="/posts/651476186/title.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-27</div><div class="title">沙盒类SLG战斗(七) 阵营本身也是实体：Camp</div></div></a></div><div><a href="/posts/2779165195/" title="沙盒类SLG战斗(三) 三层结构的通信与同步机制"><img class="cover" src="/posts/2779165195/title.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-21</div><div class="title">沙盒类SLG战斗(三) 三层结构的通信与同步机制</div></div></a></div><div><a href="/posts/2385172949/" title="沙盒类SLG战斗(九) 可复现的随机：Random"><img class="cover" src="/posts/2385172949/title.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-27</div><div class="title">沙盒类SLG战斗(九) 可复现的随机：Random</div></div></a></div><div><a href="/posts/89122167/" title="沙盒类SLG战斗(二) 系统拆解：逻辑层、表现层与桥接层"><img class="cover" src="/posts/89122167/title.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-20</div><div class="title">沙盒类SLG战斗(二) 系统拆解：逻辑层、表现层与桥接层</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%8E%E4%B8%80%E4%B8%AA%E6%9C%B4%E7%B4%A0%E7%9A%84%E7%96%91%E9%97%AE%E5%BC%80%E5%A7%8B"><span class="toc-number">1.</span> <span class="toc-text">从一个朴素的疑问开始</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%80%E7%9B%B4%E8%A7%89%E7%9A%84%E6%83%B3%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">最直觉的想法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%B3%E6%97%B6%E5%A4%84%E7%90%86%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A1%8C%E4%B8%8D%E9%80%9A"><span class="toc-number">3.</span> <span class="toc-text">即时处理为什么行不通</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BB%9F%E4%B8%80%E6%8A%BD%E8%B1%A1%EF%BC%9AIInput"><span class="toc-number">4.</span> <span class="toc-text">统一抽象：IInput</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BC%93%E5%86%B2-%E4%BC%98%E5%85%88%E7%BA%A7%E6%8E%92%E5%BA%8F"><span class="toc-number">5.</span> <span class="toc-text">缓冲 + 优先级排序</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%80%8E%E4%B9%88%E7%94%A8%E8%BE%93%E5%85%A5%E5%BA%8F%E5%88%97%E6%9D%A5%E6%A0%A1%E9%AA%8C"><span class="toc-number">6.</span> <span class="toc-text">服务器怎么用输入序列来校验</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E8%A2%AB%E4%BD%8E%E4%BC%B0%E7%9A%84%E4%BA%8B%E5%AE%9E"><span class="toc-number">7.</span> <span class="toc-text">一个被低估的事实</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD"><span class="toc-number">8.</span> <span class="toc-text">结语</span></a></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2026 By Damo</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script defer src="/live2d-widget/autoload.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"live2d-widget-model-wanko"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body></html>
