@@ -1,0 +1,234 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>沙盒类SLG战斗(十五) 属性系统：战斗数值的基座 | Damo Blog</title><meta name="keywords" content="lua,设计模式"><meta name="author" content="Damo"><meta name="copyright" content="Damo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="点我回到首页  所有战斗行为的起点上一章讲完了实体的骨架——组件化设计、两层多态、三段式 tick。现在开始逐个展开组件，第一个就是属性。 属性是战斗里最底层的数据。攻击力决定伤害、防御力决定减伤、最大 HP 决定存活、移动速度决定走位——几乎所有战斗行为最终都要读某个属性、改某个属性。战斗内各种效果的作用是”改属性”，技能的判断依赖”读属性”，AI 的决策参考”比属性”。 看起来只是一组数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="沙盒类SLG战斗(十五) 属性系统：战斗数值的基座">
+<meta property="og:url" content="https://damoblog.github.io/posts/3917284056/index.html">
+<meta property="og:site_name" content="Damo Blog">
+<meta property="og:description" content="点我回到首页  所有战斗行为的起点上一章讲完了实体的骨架——组件化设计、两层多态、三段式 tick。现在开始逐个展开组件，第一个就是属性。 属性是战斗里最底层的数据。攻击力决定伤害、防御力决定减伤、最大 HP 决定存活、移动速度决定走位——几乎所有战斗行为最终都要读某个属性、改某个属性。战斗内各种效果的作用是”改属性”，技能的判断依赖”读属性”，AI 的决策参考”比属性”。 看起来只是一组数">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://damoblog.github.io/posts/3917284056/title.jpg">
+<meta property="article:published_time" content="2026-04-27T12:56:00.000Z">
+<meta property="article:modified_time" content="2026-04-27T13:09:47.429Z">
+<meta property="article:author" content="Damo">
+<meta property="article:tag" content="lua">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://damoblog.github.io/posts/3917284056/title.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://damoblog.github.io/posts/3917284056/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: Damo","link":"链接: ","source":"来源: Damo Blog","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '沙盒类SLG战斗(十五) 属性系统：战斗数值的基座',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-04-27 21:09:47'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    })(window)</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/iconfont.css" media="defer" onload="this.media='all'"><meta name="generator" content="Hexo 5.4.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/img/head.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">76</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/gameFramework/"><span> 游戏架构设计</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 战斗设计</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/posts/3206756999/"><span> 放置类卡牌战斗</span></a></li><li><a class="site-page child" href="/posts/3491614555/"><span> 沙盒类SLG战斗</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/resourceManage/"><span> 资源管理</span></a></div><div class="menus_item"><a class="site-page" href="/ui/"><span> UI</span></a></div><div class="menus_item"><a class="site-page" href="/puerts/"><span> Puerts</span></a></div><div class="menus_item"><a class="site-page" href="/xlua/"><span> XLua</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/posts/3917284056/title.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Damo Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/gameFramework/"><span> 游戏架构设计</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 战斗设计</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/posts/3206756999/"><span> 放置类卡牌战斗</span></a></li><li><a class="site-page child" href="/posts/3491614555/"><span> 沙盒类SLG战斗</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/resourceManage/"><span> 资源管理</span></a></div><div class="menus_item"><a class="site-page" href="/ui/"><span> UI</span></a></div><div class="menus_item"><a class="site-page" href="/puerts/"><span> Puerts</span></a></div><div class="menus_item"><a class="site-page" href="/xlua/"><span> XLua</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">沙盒类SLG战斗(十五) 属性系统：战斗数值的基座</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-04-27T12:56:00.000Z" title="发表于 2026-04-27 20:56:00">2026-04-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-04-27T13:09:47.429Z" title="更新于 2026-04-27 21:09:47">2026-04-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/%E6%88%98%E6%96%97/">战斗</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/%E6%88%98%E6%96%97/%E6%B2%99%E7%9B%92%E7%B1%BBSLG%E6%88%98%E6%96%97/">沙盒类SLG战斗</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="沙盒类SLG战斗(十五) 属性系统：战斗数值的基座"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><hr>
+  <a href="/posts/3491614555/" title="点我回到首页">点我回到首页</a>
+<hr>
+<h1 id="所有战斗行为的起点"><a href="#所有战斗行为的起点" class="headerlink" title="所有战斗行为的起点"></a>所有战斗行为的起点</h1><p>上一章讲完了实体的骨架——组件化设计、两层多态、三段式 tick。现在开始逐个展开组件，第一个就是<strong>属性</strong>。</p>
+<p>属性是战斗里最底层的数据。攻击力决定伤害、防御力决定减伤、最大 HP 决定存活、移动速度决定走位——几乎所有战斗行为最终都要读某个属性、改某个属性。战斗内各种效果的作用是”改属性”，技能的判断依赖”读属性”，AI 的决策参考”比属性”。</p>
+<p>看起来只是一组数值，但真正做起来会发现：<strong>属性系统的设计不好，整个战斗的可维护性都会跟着塌。</strong></p>
+<h1 id="养成属性和战斗属性必须分开"><a href="#养成属性和战斗属性必须分开" class="headerlink" title="养成属性和战斗属性必须分开"></a>养成属性和战斗属性必须分开</h1><p>第一个要做的决定是：养成系统里的属性和战斗里的属性，是同一套枚举吗？</p>
+<p>答案是<strong>不能是同一套</strong>。</p>
+<p>养成系统的属性可能有几十上百种——等级、星级、品质、天赋点、装备评分、觉醒阶数……这些东西变化频繁、版本迭代快，每个版本都可能加新的养成维度。</p>
+<p>如果战斗属性和养成属性共用一套枚举，后果会随着项目推进逐步放大：</p>
+<ul>
+<li>养成那边加了一个新属性（比如”觉醒阶数”），战斗这边的枚举也得跟着加——哪怕战斗逻辑完全不用它。改一个 Buff 要同时碰养成、配置、战斗三层代码</li>
+<li>策划在 CSV 里配的属性公式和战斗编辑器里的公式各维护一份，版本一旦不同步，同一场战斗在两端算出不同的数值——<strong>而且这种漂移是永久的</strong>，不会自己修复</li>
+<li>枚举膨胀到上百条以后，没人记得清哪些是战斗用的、哪些是养成用的，改错一条就是线上事故</li>
+</ul>
+<p>更深层的原因是，养成属性和战斗属性之间往往不是一一对应的。很多游戏里，养成属性需要<strong>转化</strong>才能变成战斗属性：智力转化成魔法攻击、敏捷转化成攻击速度、体质转化成最大 HP。这种转化关系本身就说明它们是两套东西，不应该混在一起。</p>
+<p>所以设计上要维护两套独立的枚举：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 示意伪代码</span></span><br><span class="line"><span class="comment">-- 养成属性（外部系统使用）</span></span><br><span class="line">EGrowthProperty = &#123;</span><br><span class="line">    Level = <span class="number">1</span>,</span><br><span class="line">    Star = <span class="number">2</span>,</span><br><span class="line">    Quality = <span class="number">3</span>,</span><br><span class="line">    TalentPoint = <span class="number">4</span>,</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 战斗属性（逻辑层使用）</span></span><br><span class="line">EBattleProperty = &#123;</span><br><span class="line">    FirePower = <span class="number">1</span>,    <span class="comment">-- 火力</span></span><br><span class="line">    Defense = <span class="number">2</span>,      <span class="comment">-- 防御</span></span><br><span class="line">    MaxHp = <span class="number">3</span>,        <span class="comment">-- 最大生命</span></span><br><span class="line">    MoveSpeed = <span class="number">4</span>,    <span class="comment">-- 移动速度</span></span><br><span class="line">    AttackRange = <span class="number">5</span>,  <span class="comment">-- 攻击范围</span></span><br><span class="line">    CritRate = <span class="number">6</span>,     <span class="comment">-- 暴击率</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>战斗属性还会包含一些纯战斗态的属性——比如当前位置、当前 HP、当前兵力——这些养成系统里根本不存在。两套枚举各自独立演化，互不干扰。</p>
+<p>两套枚举之间需要维护一张<strong>转换映射表</strong>：养成属性 A 对应战斗属性 B，转换系数是多少。这张表的好处不只是解耦枚举——它还天然地把养成侧的 Buff 隔离掉了。养成系统里加了一个”提升智力 10%”的 Buff，它不会直接出现在战斗属性里，而是通过转换表变成”魔法攻击 +X”。战斗逻辑层永远只看到战斗属性的变化，不需要知道这个变化来自哪个养成维度。</p>
+<blockquote>
+<p><strong>养成属性和战斗属性是两个不同的域——它们的变化节奏不同、生命周期不同、维护方不同，不应该共享枚举。中间的转换映射表既是翻译层，也是隔离层。</strong></p>
+</blockquote>
+<h1 id="属性的命名：用通用维度，不用业务名称"><a href="#属性的命名：用通用维度，不用业务名称" class="headerlink" title="属性的命名：用通用维度，不用业务名称"></a>属性的命名：用通用维度，不用业务名称</h1><p>一个容易犯的错误是按业务给属性命名：无人机攻击力、兵卡攻击力、指挥官攻击力……</p>
+<p>这样做的后果是：每加一种新的单位类型，属性枚举就要膨胀一圈。而且逻辑层在计算伤害时还得判断”这个单位是什么类型，该读哪个攻击力属性”——本质上把实体的多态问题泄漏到了属性层。</p>
+<p>正确的做法是：<strong>属性只定义通用维度——攻击力、防御力、速度——不携带业务含义。</strong> 不同单位类型的差异通过”怎么计算这个属性”来体现（属性公式不同、修改来源不同），而不是”定义不同的属性枚举”。</p>
+<p>此外，有些游戏里还存在一类”隐性属性”——比如”每攻击 3 次必定暴击一次”，这背后其实也是属性：一个计数器加一个阈值。这类属性不会暴露给玩家，但逻辑层需要它来驱动行为。它和普通属性（攻击力、暴击率）在实现层面没有本质区别，只是语义上属于”战斗机制属性”而非”面板属性”——这也是为什么需要两套枚举，战斗属性的范畴比养成属性宽得多。关于这类属性怎么和技能系统配合，后面技能章节会详细展开。</p>
+<blockquote>
+<p><strong>属性是通用的度量，不是业务的标签。</strong></p>
+</blockquote>
+<h1 id="传入战斗的应该是原子属性"><a href="#传入战斗的应该是原子属性" class="headerlink" title="传入战斗的应该是原子属性"></a>传入战斗的应该是原子属性</h1><p>属性从外部进入战斗时，有一个重要的原则：<strong>传入的应该是原子属性（等级、星级等），不是计算后的结果属性（火力、防御等）。</strong></p>
+<p>为什么？因为”等级怎么转化成火力”这个计算过程，在战斗的确定性框架下必须由战斗逻辑层自己来做——用逻辑层内部的配置表、逻辑层内部的定点数运算。</p>
+<p>如果外部直接传入算好的火力值，就意味着外部的计算公式必须和战斗内部的完全一致。这在实际项目里几乎不可能长期维持——养成系统用浮点数算的、战斗用定点数算的，精度天然不同；养成那边改了公式忘了通知战斗这边，版本就悄悄不一致了。结果是：<strong>同一个角色在客户端和服务器算出的火力不一样，战斗结果永久漂移，而且极难排查</strong>——因为你不知道是哪一端的公式先改了。</p>
+<p>这和第十二章 Config 那里讲的是同一个道理：<strong>战斗的确定性不能依赖外部的计算结果，只能依赖外部传入的原始数据。</strong></p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 示意伪代码</span></span><br><span class="line"><span class="comment">-- ✗ 不要这样：传入计算后的属性</span></span><br><span class="line">battleInfo.firePower = <span class="number">850</span>   <span class="comment">-- 外部算好的，谁知道怎么算的？</span></span><br><span class="line">battleInfo.defense = <span class="number">120</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- ✓ 应该这样：传入原子属性，战斗内部自己算</span></span><br><span class="line">battleInfo.level = <span class="number">30</span></span><br><span class="line">battleInfo.star = <span class="number">5</span></span><br><span class="line"><span class="comment">-- 战斗内部：读配置表，用 level 和 star 算出 firePower</span></span><br></pre></td></tr></table></figure>
+
+<p>战斗逻辑层拿到 level 和 star 后，从自己持有的配置表里查出对应的基础属性和成长系数，自己计算出最终的火力、防御、HP。整个计算过程在逻辑层内部闭环，不依赖外部的计算逻辑。</p>
+<blockquote>
+<p><strong>传入原子属性，战斗内部自己算——这是确定性在属性层面的体现。</strong></p>
+</blockquote>
+<p>这里还有一个容易踩的工程陷阱：<strong>不要让策划维护两套属性表。</strong></p>
+<p>有的项目会出现这样的情况——战斗编辑器里配一套属性数据，外面的 CSV 表格又配一套，两边靠人力保持一致。时间一长，总会有人改了一边忘了另一边，然后出现”编辑器里测试正常、上线后数值不对”的问题。</p>
+<p>正确的做法是：<strong>属性数据只有一份源，通过工具自动转化成战斗逻辑层需要的格式。</strong> 策划在一个地方配，工具负责导出、转化、校验——消除人力同步的环节。这和第十二章 Config 讲的原则一样：一致性不能靠流程保证，要靠工具保证。</p>
+<h1 id="战斗内不要有养成逻辑"><a href="#战斗内不要有养成逻辑" class="headerlink" title="战斗内不要有养成逻辑"></a>战斗内不要有养成逻辑</h1><p>这个原则再推一步：<strong>战斗内部不应该有任何养成系统的概念。</strong></p>
+<p>我见过的反面案例是：战斗逻辑层里有”装备系统”的概念，技能伤害计算时要先查装备列表、算装备加成、再叠加到属性上。结果每次养成那边改装备结构（比如加了套装效果、改了强化公式），战斗这边的伤害计算就得跟着改——两个团队互相等对方改完才能测试，开发效率直线下降。</p>
+<p>不要有”装备”的概念——如果装备的效果只是提供属性加成或增益，那它在进入战斗之前就应该被拆解成属性值和 Buff 列表，战斗逻辑层只看到”一组初始属性”和”一批 Buff”。</p>
+<p>不要有”限时增益”这种跨系统概念——如果某个玩法需要给玩家加一个 24 小时的加成，这个加成在进入战斗时应该已经被转化成 Buff 数据传入，战斗逻辑层不需要知道它”还剩多少时间”，也不需要知道它”来自哪个系统”。</p>
+<p>所有养成系统的产出——装备、天赋、觉醒、铭文、限时增益——在进入战斗的那一刻，都应该被<strong>打平</strong>成两种东西：<strong>属性值</strong>和 <strong>Buff 列表</strong>。战斗逻辑层只认这两种数据，不认任何养成系统的概念。</p>
+<p>这里要区分清楚两种东西，为了避免后续混淆，先定义一下名词：</p>
+<ul>
+<li><strong>Buff（养成 Buff）</strong>：养成侧传入的初始属性修改，比如某个天赋提供的永久增益、某个限时活动发放的加成。它们在战斗开始时作为初始数据传入，随战斗全程生效，本质上只是”带名字的属性修改器”。</li>
+<li><strong>Attachment（附着）</strong>：战斗过程中由技能、效果动态施加的东西——减速、持续伤害、护盾、增伤等。它们由战斗逻辑层自己创建和管理，有持续时间、可叠加、可驱散。后面的章节里，战斗内的效果系统统一叫 <strong>Attachment 系统</strong>，不叫 Buff 系统，下一章会专门展开。</li>
+</ul>
+<p>两者的区别在于：Buff 是<strong>静态的、外部传入的、全程不变的</strong>；Attachment 是<strong>动态的、逻辑层产生的、随战斗过程变化的</strong>。</p>
+<blockquote>
+<p><strong>养成系统的边界在战斗入口处。进入战斗之后，只有属性和 Buff，没有装备、天赋、铭文。</strong></p>
+</blockquote>
+<h1 id="属性是-Attachment-的载体"><a href="#属性是-Attachment-的载体" class="headerlink" title="属性是 Attachment 的载体"></a>属性是 Attachment 的载体</h1><p>说到 Attachment，这里有一个设计上的关键选择：<strong>战斗逻辑应该基于属性来判断，而不是基于 Attachment 来判断。</strong></p>
+<p>比如计算伤害时需要读攻击力——不应该去遍历”这个单位身上有哪些加攻击的 Attachment，各加了多少”，而应该直接读属性组件上的攻击力值。Attachment 是<strong>修改属性的手段</strong>，属性才是<strong>逻辑判断的依据</strong>。</p>
+<p>这个区分的好处是：不管当前的攻击力是基础值、还是被三个 Attachment 叠加后的结果、还是被减益效果削弱过的——逻辑层的代码都是同一行：<code>local atk = unit.property.firePower</code>。不需要知道这个值是怎么来的，更不需要自己去汇总 Attachment 列表。</p>
+<blockquote>
+<p><strong>Attachment 改属性，逻辑读属性——属性是中间层，把 Attachment 的复杂性和逻辑的简洁性隔开。</strong></p>
+</blockquote>
+<h1 id="脏标记与延迟重算"><a href="#脏标记与延迟重算" class="headerlink" title="脏标记与延迟重算"></a>脏标记与延迟重算</h1><p>一帧之内，属性可能被修改多次——挂了 Attachment 改一次、Attachment 到期改一次、技能效果改一次。如果每次修改都立刻重算整个属性链，会有大量重复计算。</p>
+<p>第三章就强调过延迟结算的重要性，第十四章又在实体的三段式里再次落地。属性系统是延迟结算最典型的应用场景——<strong>脏标记 + 帧末重算</strong>：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 示意伪代码</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">PropertyComponent:ModifyProperty</span><span class="params">(property, value)</span></span></span><br><span class="line">    <span class="comment">-- 只记录变化，不立刻重算</span></span><br><span class="line">    <span class="built_in">self</span>.modifiers[property] = <span class="built_in">self</span>.modifiers[property] + value</span><br><span class="line">    <span class="built_in">self</span>.dirtyProperties[property] = <span class="literal">true</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">PropertyComponent:RebuildProperty</span><span class="params">()</span></span></span><br><span class="line">    <span class="keyword">for</span> property, _ <span class="keyword">in</span> <span class="built_in">pairs</span>(<span class="built_in">self</span>.dirtyProperties) <span class="keyword">do</span></span><br><span class="line">        <span class="comment">-- 重算这个属性的最终值</span></span><br><span class="line">        <span class="built_in">self</span>:BuildProperty(property)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="built_in">self</span>.dirtyProperties = &#123;&#125;</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>帧末统一调用 <code>RebuildProperty</code>，只重算被标记为脏的属性。这样做有三个好处：</p>
+<ol>
+<li><strong>减少重复计算</strong>：一帧内同一个属性被改了三次，只重算一次</li>
+<li><strong>延迟结算</strong>：同一帧内所有决策看到的属性是同一份快照，不会因为某个 Attachment 先生效就导致后续判断基于不同的数值</li>
+<li><strong>变化可追踪</strong>：重算时可以比对新旧值，发现哪些属性真正变了，触发对应的事件（比如属性变化的 Record、属性关联的触发器）</li>
+</ol>
+<p>这里还有一个容易犯的性能错误：<strong>属性值不要每次 Get 时现算。</strong></p>
+<p>有的实现会在 <code>GetProperty</code> 里实时遍历所有 modifier 求和——每读一次属性就算一次。问题是战斗里一帧之内同一个属性可能被读几十次（伤害公式读一次、AI 判断读一次、触发器检查读一次……），每次都重新算一遍，开销完全浪费在重复计算上。</p>
+<p>正确的做法是：属性始终持有一个<strong>确定的缓存值</strong>，<code>GetProperty</code> 直接返回缓存、零开销。只有属性被修改时标脏，帧末 <code>RebuildProperty</code> 重算一次并更新缓存。读是 O(1)，算只在变化时发生。</p>
+<blockquote>
+<p><strong>脏标记 + 帧末重算，是延迟结算在属性层面的具体实现——减少计算、保证快照一致、支持变化追踪。</strong></p>
+</blockquote>
+<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>属性系统看起来只是”一组数值加加减减”，但它在战斗系统里承担的角色远不止于此：</p>
+<ul>
+<li>它是养成系统和战斗逻辑的<strong>边界</strong>——养成的产出打平成属性和 Buff 进入战斗，战斗内不残留养成概念</li>
+<li>它是 Attachment 系统和战斗逻辑的<strong>中间层</strong>——Attachment 改属性，逻辑读属性，两边解耦</li>
+<li>它是延迟结算的<strong>又一个落地点</strong>——脏标记 + 帧末重算，减少计算、保证一致</li>
+</ul>
+<p>这些原则说起来都不复杂，但在实际项目里守住它们并不容易。养成系统会不断膨胀，策划会提出”战斗里能不能直接读装备数据””能不能加一个限时 Buff 的倒计时”——每一个需求单独看都合理，但每答应一个，战斗逻辑层就多一条和外部系统的耦合。积少成多，属性系统就会变成一个谁都往里塞东西的垃圾桶。</p>
+<p>作为战斗程序，在复杂业务面前要有自己的原则：<strong>什么进得来、什么进不来，边界在哪里。</strong> 养成的产出打平成属性和 Buff 再进来，这不是偷懒，是在保护战斗系统的可维护性和确定性。</p>
+<p>把属性系统做对，后面的 Attachment、技能、AI 才有一个稳定的数据基座可以依赖。</p>
+<p>下一章，<strong>Attachment 系统</strong>。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Damo</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://damoblog.github.io/posts/3917284056/">https://damoblog.github.io/posts/3917284056/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://damoblog.github.io" target="_blank">Damo Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/lua/">lua</a><a class="post-meta__tags" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a></div><div class="post_share"><div class="social-share" data-image="/posts/3917284056/title.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/posts/2718394056/"><img class="next-cover" src="/posts/2718394056/title.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">沙盒类SLG战斗(十四) 实体的内部结构：组件化设计</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/3067045796/" title="UI-PureMVC框架"><img class="cover" src="/posts/3067045796/title.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-05-10</div><div class="title">UI-PureMVC框架</div></div></a></div><div><a href="/posts/1636533572/" title="沙盒类SLG战斗(一) 从简单游戏开始"><img class="cover" src="/posts/1636533572/title.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-20</div><div class="title">沙盒类SLG战斗(一) 从简单游戏开始</div></div></a></div><div><a href="/posts/2779165195/" title="沙盒类SLG战斗(三) 三层结构的通信与同步机制"><img class="cover" src="/posts/2779165195/title.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-21</div><div class="title">沙盒类SLG战斗(三) 三层结构的通信与同步机制</div></div></a></div><div><a href="/posts/651476186/" title="沙盒类SLG战斗(七) 阵营本身也是实体：Camp"><img class="cover" src="/posts/651476186/title.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-27</div><div class="title">沙盒类SLG战斗(七) 阵营本身也是实体：Camp</div></div></a></div><div><a href="/posts/3404179828/" title="沙盒类SLG战斗(五) 逻辑层的调度核心：Processor"><img class="cover" src="/posts/3404179828/title.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-25</div><div class="title">沙盒类SLG战斗(五) 逻辑层的调度核心：Processor</div></div></a></div><div><a href="/posts/89122167/" title="沙盒类SLG战斗(二) 系统拆解：逻辑层、表现层与桥接层"><img class="cover" src="/posts/89122167/title.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-20</div><div class="title">沙盒类SLG战斗(二) 系统拆解：逻辑层、表现层与桥接层</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%89%80%E6%9C%89%E6%88%98%E6%96%97%E8%A1%8C%E4%B8%BA%E7%9A%84%E8%B5%B7%E7%82%B9"><span class="toc-number">1.</span> <span class="toc-text">所有战斗行为的起点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%BB%E6%88%90%E5%B1%9E%E6%80%A7%E5%92%8C%E6%88%98%E6%96%97%E5%B1%9E%E6%80%A7%E5%BF%85%E9%A1%BB%E5%88%86%E5%BC%80"><span class="toc-number">2.</span> <span class="toc-text">养成属性和战斗属性必须分开</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B1%9E%E6%80%A7%E7%9A%84%E5%91%BD%E5%90%8D%EF%BC%9A%E7%94%A8%E9%80%9A%E7%94%A8%E7%BB%B4%E5%BA%A6%EF%BC%8C%E4%B8%8D%E7%94%A8%E4%B8%9A%E5%8A%A1%E5%90%8D%E7%A7%B0"><span class="toc-number">3.</span> <span class="toc-text">属性的命名：用通用维度，不用业务名称</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BC%A0%E5%85%A5%E6%88%98%E6%96%97%E7%9A%84%E5%BA%94%E8%AF%A5%E6%98%AF%E5%8E%9F%E5%AD%90%E5%B1%9E%E6%80%A7"><span class="toc-number">4.</span> <span class="toc-text">传入战斗的应该是原子属性</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%88%98%E6%96%97%E5%86%85%E4%B8%8D%E8%A6%81%E6%9C%89%E5%85%BB%E6%88%90%E9%80%BB%E8%BE%91"><span class="toc-number">5.</span> <span class="toc-text">战斗内不要有养成逻辑</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B1%9E%E6%80%A7%E6%98%AF-Attachment-%E7%9A%84%E8%BD%BD%E4%BD%93"><span class="toc-number">6.</span> <span class="toc-text">属性是 Attachment 的载体</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%84%8F%E6%A0%87%E8%AE%B0%E4%B8%8E%E5%BB%B6%E8%BF%9F%E9%87%8D%E7%AE%97"><span class="toc-number">7.</span> <span class="toc-text">脏标记与延迟重算</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD"><span class="toc-number">8.</span> <span class="toc-text">结语</span></a></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2026 By Damo</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script defer src="/live2d-widget/autoload.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"live2d-widget-model-wanko"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body></html>
