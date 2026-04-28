@@ -1,0 +1,182 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>沙盒类SLG战斗(三十一) 战斗模式：Controller 统一结构，Mode 隔离业务 | Damo Blog</title><meta name="keywords" content="lua,设计模式"><meta name="author" content="Damo"><meta name="copyright" content="Damo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="点我回到首页  战斗跑法的多样性战斗系统要支持多种”跑法”：  实时战斗：逻辑层和表现层同时推进 回放：逻辑层已跑完，表现层从 Record 数据里播放 编队编辑：只显示布阵界面，不跑战斗 先布阵再回放：先进编队编辑，确认后播放服务器预先算好的结果 先布阵再实时：先进编队编辑，确认后实时跑战斗  本质问题不是”有多少种跑法”，而是这些跑法的大部分流程是相同的——地图加载、单位创建、特效播放—">
+<meta property="og:type" content="article">
+<meta property="og:title" content="沙盒类SLG战斗(三十一) 战斗模式：Controller 统一结构，Mode 隔离业务">
+<meta property="og:url" content="https://damoblog.github.io/posts/6918273540/index.html">
+<meta property="og:site_name" content="Damo Blog">
+<meta property="og:description" content="点我回到首页  战斗跑法的多样性战斗系统要支持多种”跑法”：  实时战斗：逻辑层和表现层同时推进 回放：逻辑层已跑完，表现层从 Record 数据里播放 编队编辑：只显示布阵界面，不跑战斗 先布阵再回放：先进编队编辑，确认后播放服务器预先算好的结果 先布阵再实时：先进编队编辑，确认后实时跑战斗  本质问题不是”有多少种跑法”，而是这些跑法的大部分流程是相同的——地图加载、单位创建、特效播放—">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://damoblog.github.io/posts/6918273540/title.jpg">
+<meta property="article:published_time" content="2026-04-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-04-28T14:47:15.447Z">
+<meta property="article:author" content="Damo">
+<meta property="article:tag" content="lua">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://damoblog.github.io/posts/6918273540/title.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://damoblog.github.io/posts/6918273540/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: Damo","link":"链接: ","source":"来源: Damo Blog","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '沙盒类SLG战斗(三十一) 战斗模式：Controller 统一结构，Mode 隔离业务',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-04-28 22:47:15'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    })(window)</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/iconfont.css" media="defer" onload="this.media='all'"><meta name="generator" content="Hexo 5.4.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/img/head.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">93</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/gameFramework/"><span> 游戏架构设计</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 战斗设计</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/posts/3206756999/"><span> 放置类卡牌战斗</span></a></li><li><a class="site-page child" href="/posts/3491614555/"><span> 沙盒类SLG战斗</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/resourceManage/"><span> 资源管理</span></a></div><div class="menus_item"><a class="site-page" href="/ui/"><span> UI</span></a></div><div class="menus_item"><a class="site-page" href="/puerts/"><span> Puerts</span></a></div><div class="menus_item"><a class="site-page" href="/xlua/"><span> XLua</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/posts/6918273540/title.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Damo Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/gameFramework/"><span> 游戏架构设计</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 战斗设计</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/posts/3206756999/"><span> 放置类卡牌战斗</span></a></li><li><a class="site-page child" href="/posts/3491614555/"><span> 沙盒类SLG战斗</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/resourceManage/"><span> 资源管理</span></a></div><div class="menus_item"><a class="site-page" href="/ui/"><span> UI</span></a></div><div class="menus_item"><a class="site-page" href="/puerts/"><span> Puerts</span></a></div><div class="menus_item"><a class="site-page" href="/xlua/"><span> XLua</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">沙盒类SLG战斗(三十一) 战斗模式：Controller 统一结构，Mode 隔离业务</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-04-28T16:00:00.000Z" title="发表于 2026-04-29 00:00:00">2026-04-29</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-04-28T14:47:15.447Z" title="更新于 2026-04-28 22:47:15">2026-04-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/%E6%88%98%E6%96%97/">战斗</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/%E6%88%98%E6%96%97/%E6%B2%99%E7%9B%92%E7%B1%BBSLG%E6%88%98%E6%96%97/">沙盒类SLG战斗</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="沙盒类SLG战斗(三十一) 战斗模式：Controller 统一结构，Mode 隔离业务"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><hr>
+  <a href="/posts/3491614555/" title="点我回到首页">点我回到首页</a>
+<hr>
+<h1 id="战斗跑法的多样性"><a href="#战斗跑法的多样性" class="headerlink" title="战斗跑法的多样性"></a>战斗跑法的多样性</h1><p>战斗系统要支持多种”跑法”：</p>
+<ul>
+<li><strong>实时战斗</strong>：逻辑层和表现层同时推进</li>
+<li><strong>回放</strong>：逻辑层已跑完，表现层从 Record 数据里播放</li>
+<li><strong>编队编辑</strong>：只显示布阵界面，不跑战斗</li>
+<li><strong>先布阵再回放</strong>：先进编队编辑，确认后播放服务器预先算好的结果</li>
+<li><strong>先布阵再实时</strong>：先进编队编辑，确认后实时跑战斗</li>
+</ul>
+<p>本质问题不是”有多少种跑法”，而是这些跑法的大部分流程是相同的——地图加载、单位创建、特效播放——只有少数环节不同。如果每种跑法各写一套，大量代码重复，改一处要改好几处。</p>
+<h1 id="Controller：合并相同流程，继承覆写不同流程"><a href="#Controller：合并相同流程，继承覆写不同流程" class="headerlink" title="Controller：合并相同流程，继承覆写不同流程"></a>Controller：合并相同流程，继承覆写不同流程</h1><p>和逻辑层的 Processor 思路一样——先由各个模块对外提供能力（地图加载、编队初始化、实时战斗推进、回放阶段控制、特效等），再由 <strong>BattleController</strong> 来编排这些能力、定义流程骨架。不同跑法继承 Controller，只覆写真正不同的部分，公共能力直接复用：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 示意伪代码</span></span><br><span class="line"><span class="comment">-- 基类：持有公共模块，定义流程骨架</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">BattleController:Start</span><span class="params">()</span></span></span><br><span class="line">    <span class="built_in">self</span>.mapModule:Load()</span><br><span class="line">    <span class="built_in">self</span>.formationModule:Setup()</span><br><span class="line">    <span class="built_in">self</span>.effectModule:Init()</span><br><span class="line">    <span class="built_in">self</span>:OnStart()          <span class="comment">-- 子类覆写：跑法特有的启动逻辑</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">BattleController:Tick</span><span class="params">(dt)</span></span></span><br><span class="line">    <span class="built_in">self</span>:OnTick(dt)         <span class="comment">-- 子类覆写：这一帧怎么推进</span></span><br><span class="line">    <span class="built_in">self</span>.effectModule:Update(dt)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 实时战斗：驱动逻辑层推进，取 Record 交给表现层</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">LiveBattleController:OnTick</span><span class="params">(dt)</span></span></span><br><span class="line">    <span class="built_in">self</span>.battleEngine:Tick()</span><br><span class="line">    <span class="keyword">local</span> tickData = <span class="built_in">self</span>.recorder:GetCurrentTick()</span><br><span class="line">    <span class="built_in">self</span>.presentation:PlayTick(tickData)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 回放：从 Record 里按帧读取播放</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">ReplayBattleController:OnTick</span><span class="params">(dt)</span></span></span><br><span class="line">    <span class="built_in">self</span>.currentTick = <span class="built_in">self</span>.currentTick + <span class="number">1</span></span><br><span class="line">    <span class="keyword">local</span> tickData   = <span class="built_in">self</span>.record:GetTickData(<span class="built_in">self</span>.currentTick)</span><br><span class="line">    <span class="built_in">self</span>.presentation:PlayTick(tickData)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 先布阵再实时：启动时先进编队阶段，确认后切实时流程</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">PreDeployLiveController:OnStart</span><span class="params">()</span></span></span><br><span class="line">    <span class="built_in">self</span>:EnterFormationPhase()</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">PreDeployLiveController:OnFormationConfirmed</span><span class="params">()</span></span></span><br><span class="line">    <span class="built_in">self</span>:EnterLivePhase()</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>公共模块在基类统一初始化和销毁，子类只处理自己不同的那部分。<strong>相同的流程合并在基类，不同的流程在子类里覆写——新增一种跑法，继承一个新 Controller 就行，已有代码不动。</strong> 这本质上是一个「模板方法（Template Method）」的应用。</p>
+<h1 id="Mode：把业务关切隔离在战斗之外"><a href="#Mode：把业务关切隔离在战斗之外" class="headerlink" title="Mode：把业务关切隔离在战斗之外"></a>Mode：把业务关切隔离在战斗之外</h1><p>Controller 解决了”战斗怎么跑”，但还有另一层问题：<strong>同一种跑法，在不同玩法场景下的业务行为不同。</strong></p>
+<p>比如同样是”先布阵再实时战斗”：</p>
+<ul>
+<li>竞技场：战斗开始时打开竞技场 UI，结束时发送竞技场结算协议</li>
+<li>战役：战斗开始前播放剧情动画，胜利时解锁下一关</li>
+</ul>
+<p>这些是业务逻辑，不属于战斗系统内部。我们希望战斗模块和业务彼此隔离——战斗系统只维护战斗逻辑，业务方只维护自己的代码，互不干扰，降低双方的维护成本。如果把业务直接写进 Controller，每次新增玩法都要改 Controller，战斗系统和业务的边界就模糊了，谁改谁都要小心翼翼。</p>
+<p>做法是在 Controller 里持有一个 <strong>Mode</strong>，在战斗生命周期的关键节点调用 Mode 的钩子，业务逻辑完全由 Mode 自己处理：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 示意伪代码</span></span><br><span class="line"><span class="comment">-- Controller 在关键节点调 Mode 的钩子</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">BattleController:Start</span><span class="params">()</span></span></span><br><span class="line">    <span class="built_in">self</span>.mapModule:Load()</span><br><span class="line">    <span class="built_in">self</span>.formationModule:Setup()</span><br><span class="line">    <span class="built_in">self</span>.mode:OnBattleWillStart(<span class="built_in">self</span>)   <span class="comment">-- 业务在这里介入</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">BattleController:OnBattleEnd</span><span class="params">(result)</span></span></span><br><span class="line">    <span class="built_in">self</span>.mode:OnBattleEnd(result)       <span class="comment">-- 业务在这里介入</span></span><br><span class="line">    <span class="built_in">self</span>:Cleanup()</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 竞技场 Mode：只管竞技场相关的业务</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">ArenaBattleMode:OnBattleWillStart</span><span class="params">(controller)</span></span></span><br><span class="line">    UIManager:Open(<span class="string">&quot;ArenaUI&quot;</span>)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">ArenaBattleMode:OnBattleEnd</span><span class="params">(result)</span></span></span><br><span class="line">    NetworkManager:SendArenaResult(result)</span><br><span class="line">    UIManager:Open(<span class="string">&quot;ArenaSettlementUI&quot;</span>)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 战役 Mode：只管战役相关的业务</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">CampaignBattleMode:OnBattleWillStart</span><span class="params">(controller)</span></span></span><br><span class="line">    StoryManager:PlayPreBattleCutscene()</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">CampaignBattleMode:OnBattleEnd</span><span class="params">(result)</span></span></span><br><span class="line">    <span class="keyword">if</span> result.isVictory <span class="keyword">then</span></span><br><span class="line">        CampaignManager:UnlockNextChapter()</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>战斗系统不需要知道外面是竞技场还是战役——它只管在对的时机调 Mode 的钩子，剩下的事情 Mode 自己负责。<strong>战斗内部对业务无感知，业务对战斗内部无干扰。</strong></p>
+<h1 id="新增玩法的正确姿势"><a href="#新增玩法的正确姿势" class="headerlink" title="新增玩法的正确姿势"></a>新增玩法的正确姿势</h1><p>Mode 的设计目标是：<strong>加一种新玩法，只需要新建一个 Mode 类，逻辑全部收拢在 Mode 内部，不去好几个地方注册，不修改任何已有代码。</strong></p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 新增公会战：新建 GuildWarBattleMode，覆写关心的钩子</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">GuildWarBattleMode:OnBattleWillStart</span><span class="params">(controller)</span></span></span><br><span class="line">    UIManager:Open(<span class="string">&quot;GuildWarUI&quot;</span>)</span><br><span class="line">    NetworkManager:NotifyGuildWarStart()</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">GuildWarBattleMode:OnBattleEnd</span><span class="params">(result)</span></span></span><br><span class="line">    GuildWarManager:SubmitResult(result)</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>在玩法入口把 Controller 和 Mode 组合：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> controller = PreDeployLiveController.New()</span><br><span class="line">controller:SetMode(GuildWarBattleMode.New())</span><br><span class="line">controller:Start()</span><br></pre></td></tr></table></figure>
+
+<p>新人接手时，找到 Mode 基类，继承，覆写关心的生命周期，完成——不需要理解整个战斗系统的内部细节，也不会因为改错地方搞坏已有玩法。</p>
+<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>战斗模式的设计分两层：<strong>Controller 解决”怎么跑”，Mode 解决”业务在哪介入”。</strong></p>
+<p>Controller 用继承把不同跑法的差异收拢在各自子类，公共流程在基类合并；Mode 用钩子把业务逻辑隔离在战斗之外，战斗内部对玩法完全无感知。两层各司其职——新增跑法加 Controller 子类，新增玩法加 Mode 子类，扩展点清晰，逻辑不散。</p>
+<p>到这里，表现层的五章全部结束。从 Record 消费到实体组件，从插值到弹道特效，再到战斗模式——表现层的每个模块都在做同一件事：<strong>把逻辑层的离散数据，演绎成玩家看到的连续画面。——逻辑决定结果，表现决定体验。</strong></p>
+<p>三十一章的技术分享到这里结束。下一章，聊一些不那么技术性的东西。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Damo</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://damoblog.github.io/posts/6918273540/">https://damoblog.github.io/posts/6918273540/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://damoblog.github.io" target="_blank">Damo Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/lua/">lua</a><a class="post-meta__tags" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a></div><div class="post_share"><div class="social-share" data-image="/posts/6918273540/title.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/7382916540/"><img class="prev-cover" src="/posts/7382916540/title.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">沙盒类SLG战斗(三十二) 战斗多年的感悟</div></div></a></div><div class="next-post pull-right"><a href="/posts/5829163740/"><img class="next-cover" src="/posts/5829163740/title.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">沙盒类SLG战斗(三十) 弹道、飘字与特效：纯表现的模块</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/3067045796/" title="UI-PureMVC框架"><img class="cover" src="/posts/3067045796/title.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-05-10</div><div class="title">UI-PureMVC框架</div></div></a></div><div><a href="/posts/1636533572/" title="沙盒类SLG战斗(一) 从简单游戏开始"><img class="cover" src="/posts/1636533572/title.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-20</div><div class="title">沙盒类SLG战斗(一) 从简单游戏开始</div></div></a></div><div><a href="/posts/651476186/" title="沙盒类SLG战斗(七) 阵营本身也是实体：Camp"><img class="cover" src="/posts/651476186/title.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-27</div><div class="title">沙盒类SLG战斗(七) 阵营本身也是实体：Camp</div></div></a></div><div><a href="/posts/2779165195/" title="沙盒类SLG战斗(三) 三层结构的通信与同步机制"><img class="cover" src="/posts/2779165195/title.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-21</div><div class="title">沙盒类SLG战斗(三) 三层结构的通信与同步机制</div></div></a></div><div><a href="/posts/5829163740/" title="沙盒类SLG战斗(三十) 弹道、飘字与特效：纯表现的模块"><img class="cover" src="/posts/5829163740/title.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-28</div><div class="title">沙盒类SLG战斗(三十) 弹道、飘字与特效：纯表现的模块</div></div></a></div><div><a href="/posts/7382916540/" title="沙盒类SLG战斗(三十二) 战斗多年的感悟"><img class="cover" src="/posts/7382916540/title.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-04-29</div><div class="title">沙盒类SLG战斗(三十二) 战斗多年的感悟</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%88%98%E6%96%97%E8%B7%91%E6%B3%95%E7%9A%84%E5%A4%9A%E6%A0%B7%E6%80%A7"><span class="toc-number">1.</span> <span class="toc-text">战斗跑法的多样性</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Controller%EF%BC%9A%E5%90%88%E5%B9%B6%E7%9B%B8%E5%90%8C%E6%B5%81%E7%A8%8B%EF%BC%8C%E7%BB%A7%E6%89%BF%E8%A6%86%E5%86%99%E4%B8%8D%E5%90%8C%E6%B5%81%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">Controller：合并相同流程，继承覆写不同流程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Mode%EF%BC%9A%E6%8A%8A%E4%B8%9A%E5%8A%A1%E5%85%B3%E5%88%87%E9%9A%94%E7%A6%BB%E5%9C%A8%E6%88%98%E6%96%97%E4%B9%8B%E5%A4%96"><span class="toc-number">3.</span> <span class="toc-text">Mode：把业务关切隔离在战斗之外</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%B0%E5%A2%9E%E7%8E%A9%E6%B3%95%E7%9A%84%E6%AD%A3%E7%A1%AE%E5%A7%BF%E5%8A%BF"><span class="toc-number">4.</span> <span class="toc-text">新增玩法的正确姿势</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD"><span class="toc-number">5.</span> <span class="toc-text">结语</span></a></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2026 By Damo</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script defer src="/live2d-widget/autoload.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"live2d-widget-model-wanko"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body></html>
